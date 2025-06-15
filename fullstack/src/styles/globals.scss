@@ -1,0 +1,10 @@
+@use "../../node_modules/reset-css/sass/reset" as *;
+@use "../../node_modules/@mantine/core/styles.css" as *;
+
+.hello {
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    place-content: stretch space-around;
+    background-color: lavender;
+}
