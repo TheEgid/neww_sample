@@ -165,3 +165,5 @@ fullstack/generated
 fullstack/generated/*
 
 .repomix
+
+repomix-output.txt
