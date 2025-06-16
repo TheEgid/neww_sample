@@ -2,15 +2,22 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-RUN apk add --no-cache netcat-openbsd
+ENV NODE_ENV=production
 
-COPY package.json pnpm-lock.yaml ./
+# В установить pnpm
 RUN npm install -g pnpm
-RUN pnpm install
 
+# Копирование файлов с информацией о приложении
+COPY package.json pnpm-lock.yaml ./
+# Чистая установка с lock файлом
+RUN pnpm install --frozen-lockfile
+
+# Копирование всего кода
 COPY . .
 
+# Запускаем сборку Next.js
 RUN pnpm run build
 
-EXPOSE 3007
+# Запускаем приложение в production
+USER node
 CMD ["pnpm", "start"]

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   fullstack:
     build:
@@ -9,25 +7,23 @@ services:
     ports:
       - "127.0.0.1:3007:3007"
     restart: on-failure
-    environment:
-      TZ: "Europe/Moscow"
-      DOCKER_ENV: "true"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_HOST: "postgres"
+    env_file:
+      - .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3007/api/healthcheck"]
+      test: ["CMD", "curl","-f","http://localhost:3007/api/healthcheck"]
       interval: 5s
       timeout: 3s
       retries: 2
       start_period: 30s
     volumes:
       - ./fullstack/prisma:/app/prisma
-      - ./sqlite-db:/sqlite-db  # Монтирование для доступа к SQLite
+      - ./sqlite-db:/sqlite-db
     command: >
       sh -c "if [ \"$$DOCKER_ENV\" = \"true\" ]; then
-        while ! nc -z postgres 5432; do sleep 1; echo 'Waiting for PostgreSQL...'; done;
+        while ! nc -z postgres 5432; do
+          sleep 1;
+          echo 'Waiting for PostgreSQL...';
+        done;
       fi;
       pnpm start"
 
@@ -36,32 +32,25 @@ services:
     container_name: full_db_postgres
     volumes:
       - database_volume:/var/lib/postgresql/data
-    environment:
-      TZ: "Europe/Moscow"
-      POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-      PGDATA: "/var/lib/postgresql/data/pgdata"
+    env_file:
+      - .env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 10s
 
-  # Миграция данных с помощью pgloader
   pgloader:
     image: dimitri/pgloader
     container_name: full_pgloader
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      TZ: "Europe/Moscow"
-      SOURCE_DB: "sqlite:///sqlite-db/database.sqlite"
-      TARGET_DB: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
+    env_file:
+      - .env
     volumes:
-      - ./sqlite-db:/sqlite-db  # Монтирование директории с SQLite
+      - ./sqlite-db:/sqlite-db
     command: >
       sh -c 'if [ -f "/sqlite-db/database.sqlite" ]; then
         echo "Starting migration from SQLite to PostgreSQL...";
