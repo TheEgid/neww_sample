@@ -16,7 +16,7 @@ const DtatExample = (): React.JSX.Element => {
                 {isPending && <Text>Данные закрыты</Text>}
                 <Text size="xl">
                     {!isPending && opened
-                        ? <Stack w={300}>{visitors?.at(0)?.namemame ?? "Нет данных"}</Stack>
+                        ? <Stack w={300}>{visitors?.at(0)?.name ?? "Нет данных"}</Stack>
                         : <Loader type="bars" />}
                 </Text>
             </Stack>

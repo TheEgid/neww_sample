@@ -1,32 +1,46 @@
 import dotenv from "dotenv";
 import { type User, PrismaClient } from "../../prisma/generated/prisma-client/client";
 
-// const userDb = process.env.NEXT_PUBLIC_DB_USER_DEV;
-// const passwordDb = process.env.NEXT_PUBLIC_DB_PASSWORD_DEV;
-// const nameDb = process.env.NEXT_PUBLIC_DB_NAME_DEV;
+dotenv.config();
 
-// const databaseHost = process.platform === "win32" ? "localhost" : "full_db_postgres";
-
-// const DATABASE_URL = `postgresql://${userDb}:${passwordDb}@${databaseHost}:5432/${nameDb}`;
+const isWindows = process.platform === "win32";
+const isDocker = process.env.DOCKER_ENV === "true";
 
 export type IUser = User;
 
-dotenv.config();
+const getDatabaseUrl = (): string => {
+    if (isWindows) {
+        return "file:./prisma/database-sql-lite.db";
+    }
 
-const DATABASE_URL = process.env.DATABASE_URL_DEV || "";
+    if (isDocker) {
+        return `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:5432/${process.env.POSTGRES_DB}`;
+    }
 
-const prisma = new PrismaClient({
-    datasources: { db: { url: DATABASE_URL } },
-    log: ["query", "info", "warn", "error"],
-    // log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
-});
+    return process.env.DATABASE_URL || "file:./prisma/database-sql-lite.db";
+};
+
+const DB_URL = getDatabaseUrl();
+
+console.log(`Using database URL: ${DB_URL.replace(/:([^:]+)@/, ":*****@")}`);
 
 declare global {
     var prisma: PrismaClient | undefined;
 }
 
-if (process.env.NODE_ENV === "development") {
-    global.prisma = prisma;
+const prismaClient = global.prisma ?? new PrismaClient({
+    datasources: {
+        db: {
+            url: DB_URL,
+        },
+    },
+    log: process.env.NODE_ENV === "production"
+        ? ["error"]
+        : ["query", "info", "warn", "error"],
+});
+
+if (process.env.NODE_ENV !== "production") {
+    global.prisma = prismaClient;
 }
 
-export default prisma;
+export default prismaClient;
