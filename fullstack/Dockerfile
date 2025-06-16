@@ -15,6 +15,8 @@ RUN pnpm install --frozen-lockfile
 # Копирование всего кода
 COPY . .
 
+RUN pnpm prisma generate
+
 # Запускаем сборку Next.js
 RUN pnpm run build
 
