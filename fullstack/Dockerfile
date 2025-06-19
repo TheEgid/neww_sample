@@ -2,8 +2,6 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-
 # В установить pnpm
 RUN npm install -g pnpm
 
@@ -15,11 +13,9 @@ RUN pnpm install --frozen-lockfile
 # Копирование всего кода
 COPY . .
 
-RUN pnpm prisma generate
+RUN chown -R node:node /sqlite-db
 
-# Запускаем сборку Next.js
-RUN pnpm run build
-
-# Запускаем приложение в production
+# Запуск в контейнере
 USER node
-CMD ["pnpm", "start"]
+
+CMD ["npm", "start"]
