@@ -1,5 +1,9 @@
+
 services:
   fullstack:
+    image: fullstack-app
+    build:
+      context: ./fullstack
     env_file:
       - .env
     volumes:
@@ -13,14 +17,24 @@ services:
         done;
       fi;
       pnpm start"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   postgres:
-    image: postgres:16.3-alpine
+    build:
+      context: ./postgres-db
     container_name: full_db_postgres
-    volumes:
-      - database_volume:/var/lib/postgresql/data
     env_file:
       - .env
+    volumes:
+      - database_volume:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
       interval: 5s
