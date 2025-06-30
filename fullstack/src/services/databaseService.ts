@@ -50,7 +50,6 @@ console.log(
 );
 
 declare global {
-    // В следующий раз reuse готовый instance
     var prisma: PrismaClient | undefined;
 }
 
@@ -58,7 +57,7 @@ const prismaOptions: any = {
     datasources: {
         db: { url: DB_URL },
     },
-    log: !isDocker
+    log: isDocker
         ? [{ level: "error", emit: "stdout" }]
         : [
             { level: "query", emit: "event" },

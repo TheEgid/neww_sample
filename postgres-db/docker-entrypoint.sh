@@ -202,8 +202,8 @@ docker_process_sql() {
 docker_setup_db() {
 	local dbAlreadyExists
 	dbAlreadyExists="$(
-		POSTGRES_DB= docker_process_sql --dbname postgres --set db="$POSTGRES_DB" --tuples-only <<-'EOSQL'
-			SELECT 1 FROM pg_database WHERE datname = :'db' ;
+		POSTGRES_DB= docker_process_sql --dbname postgres -v db="'$POSTGRES_DB'" --tuples-only  <<-'EOSQL'
+			SELECT 1 FROM pg_database WHERE datname = :'db';
 		EOSQL
 	)"
 	if [ -z "$dbAlreadyExists" ]; then
@@ -219,8 +219,8 @@ docker_setup_db() {
 docker_setup_env() {
 	file_env 'POSTGRES_PASSWORD'
 
-	file_env 'POSTGRES_USER' 'postgres'
-	file_env 'POSTGRES_DB' "$POSTGRES_USER"
+	file_env 'POSTGRES_USER' "$POSTGRES_USER"
+	file_env 'POSTGRES_DB' "$POSTGRES_DB"
 	file_env 'POSTGRES_INITDB_ARGS'
 	: "${POSTGRES_HOST_AUTH_METHOD:=}"
 
@@ -349,4 +349,3 @@ _main() {
 if ! _is_sourced; then
 	_main "$@"
 fi
-

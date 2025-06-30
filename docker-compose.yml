@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./fullstack/prisma:/app/prisma
+      # - ./fullstack/prisma:/app/prisma
       - ./sqlite-db:/sqlite-db
     command: >
       sh -c "if [ \"$$DOCKER_ENV\" = \"true\" ]; then
