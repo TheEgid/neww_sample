@@ -1,23 +1,35 @@
 $start = Get-Date
 
-$scriptPath = $script:MyInvocation.MyCommand.Path
-$scriptParentDirectory = Split-Path $scriptPath -Parent
-$scriptGrandParentDirectory = Split-Path $scriptParentDirectory -Parent
-$folderName = Split-Path $scriptGrandParentDirectory -Leaf
+$scriptPath = $MyInvocation.MyCommand.Path
+$grandParentDir = (Get-Item $scriptPath).Directory.Parent.FullName
+$folderName = (Get-Item $grandParentDir).Name
+$dst = Join-Path ([Environment]::GetFolderPath("Desktop")) $folderName
 
-$src = $scriptGrandParentDirectory + "\"
-$dst = [Environment]::GetFolderPath("Desktop") + "\" + $folderName + "\"
+$excludeDirs = @(
+    "fullstack\node_modules",
+    ".git",
+    ".vscode",
+    "fullstack\.next",
+    "fullstack\build",
+    "fullstack\public\temporary",
+    "fullstack\test-results",
+    "fullstack\.swc"
+) | ForEach-Object { Join-Path $grandParentDir $_ }
 
-$esx1 = $src + "fullstack\node_modules"
-$esx2 = $src + ".git"
-$esx3 = $src + ".vscode"
-$esx4 = $src + "fullstack\.next"
-$esx5 = $src + "fullstack\build"
-$esx6 = $src + "fullstack\public\temporary"
-$esx7 = $src + "fullstack\test-results"
+$robocopyArgs = @(
+    $grandParentDir,
+    $dst,
+    "/MT:12",
+    "/MIR",
+    "/XA:SH",
+    "/XJD",
+    "/NFL",
+    "/NDL",
+    ($excludeDirs | ForEach-Object { "/XD"; $_ })
+)
 
-robocopy $src $dst /MT:12 /MIR /XA:SH /XD $esx1 /XD $esx2 /XD $esx3 /XD $esx4 /XD $esx5 /XD $esx6 /XD $esx7 /XJD /NFL /NDL
+robocopy @robocopyArgs
 
-$end = Get-Date
-$elapsed = $end - $start
-Write-Output $dst, "Script execution time: $($elapsed.TotalSeconds) seconds"
+$elapsed = (Get-Date) - $start
+Write-Output "Copy completed at: $dst"
+Write-Output ("Elapsed time: {0} seconds" -f $elapsed.TotalSeconds.ToString('N2'))

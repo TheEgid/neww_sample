@@ -33,7 +33,7 @@ const getDatabaseUrl = (): string => {
     }
 
     // В крайнем случае — из env или SQLite по умолчанию
-    return process.env.DATABASE_URL || "file:./prisma/database-sql-lite.db";
+    return process.env.DATABASE_URL as string; // || "file:./prisma/database-sql-lite.db";
 };
 
 const DB_URL = getDatabaseUrl();

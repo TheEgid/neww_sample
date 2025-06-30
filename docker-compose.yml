@@ -1,20 +1,7 @@
 services:
   fullstack:
-    build:
-      context: fullstack
-      dockerfile: Dockerfile
-    container_name: fullstack_container
-    ports:
-      - "127.0.0.1:3007:3007"
-    restart: on-failure
     env_file:
       - .env
-    healthcheck:
-      test: ["CMD", "curl","-f","http://localhost:3007/api/healthcheck"]
-      interval: 5s
-      timeout: 3s
-      retries: 2
-      start_period: 30s
     volumes:
       - ./fullstack/prisma:/app/prisma
       - ./sqlite-db:/sqlite-db
@@ -28,7 +15,7 @@ services:
       pnpm start"
 
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16.3-alpine
     container_name: full_db_postgres
     volumes:
       - database_volume:/var/lib/postgresql/data

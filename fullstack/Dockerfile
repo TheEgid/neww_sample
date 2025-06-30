@@ -2,20 +2,25 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# В установить pnpm
+# Установка pnpm
 RUN npm install -g pnpm
 
 # Копирование файлов с информацией о приложении
 COPY package.json pnpm-lock.yaml ./
-# Чистая установка с lock файлом
+
+# Установка зависимостей с использованием lock-файла
 RUN pnpm install --frozen-lockfile
 
-# Копирование всего кода
+# Копирование всего остального кода
 COPY . .
 
-RUN chown -R node:node /sqlite-db
+RUN pnpm build
 
-# Запуск в контейнере
+# Создание директории для SQLite и установка владельца
+RUN mkdir -p /sqlite-db && chown -R node:node /sqlite-db
+
+# Использование пользователя node
 USER node
 
+# Команда по умолчанию
 CMD ["npm", "start"]
