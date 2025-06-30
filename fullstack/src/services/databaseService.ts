@@ -26,12 +26,10 @@ const getDatabaseUrl = (): string => {
 
         return `file:${dbPath.replace(/\\/g, "/")}`;
     }
-
     // Используем PostgreSQL в Docker
     if (isDocker) {
         return `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:5432/${process.env.POSTGRES_DB}?schema=public`;
     }
-
     // В крайнем случае — из env или SQLite по умолчанию
     return process.env.DATABASE_URL as string; // || "file:./prisma/database-sql-lite.db";
 };
@@ -60,7 +58,7 @@ const prismaOptions: any = {
     datasources: {
         db: { url: DB_URL },
     },
-    log: isDocker
+    log: !isDocker
         ? [{ level: "error", emit: "stdout" }]
         : [
             { level: "query", emit: "event" },

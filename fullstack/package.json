@@ -4,17 +4,23 @@
     "private": true,
     "license": "UNLICENSED",
     "scripts": {
-        "start-dev": "next dev --port 3005 --turbo",
-        "upgrade-packages": "pnpm up --latest",
+        "switch-db": "node prisma/switch-db.js",
+        "prisma-generate": "pnpm run switch-db && prisma generate",
+        "prisma-push": "pnpm run switch-db && prisma db push",
+        "prisma-studio": "pnpm run switch-db && prisma studio",
+
+        "start-dev": "pnpm run prisma-generate && next dev --port 3005 --turbo",
         "start": "next start -p 3007",
+        "dev": "pnpm run start-dev",
+
+        "build": "next build",
+        "serve": "pnpm build && pnpm start",
+        "postinstall": "pnpm run switch-db && pnpm prisma generate",
+
+        "upgrade-packages": "pnpm up --latest",
         "stylelint": "stylelint \"**/*.scss\" --fix",
         "frmt": "eslint . --ignore-pattern \"build/*\" --fix",
-        "build": "next build",
-        "test": "jest",
-        "serve": "pnpm build && pnpm start",
-        "prisma-generate": "pnpm prisma generate",
-        "prisma-push": "pnpm prisma db push",
-        "prisma-studio": "pnpm prisma studio"
+        "test": "jest"
     },
     "dependencies": {
         "@mantine/core": "^8.1.2",
@@ -32,8 +38,7 @@
         "prisma": "^6.10.1",
         "react": "19.1.0",
         "react-dom": "19.1.0",
-        "react-toastify": "^11.0.5",
-        "ts-node": "^10.9.2"
+        "react-toastify": "^11.0.5"
     },
     "devDependencies": {
         "@eslint/compat": "^1.3.1",

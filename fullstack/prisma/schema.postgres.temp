@@ -1,7 +1,7 @@
-// prisma/schema.sqlite.prisma
+// prisma/schema.postgres.prisma
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

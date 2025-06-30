@@ -19,6 +19,6 @@
             "@/*": ["./src/*"]
         }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next.config.mjs", "sitemap.config.mjs"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next.config.mjs", "sitemap.config.mjs", "prisma/switch-db.js"],
     "exclude": ["node_modules"]
 }
